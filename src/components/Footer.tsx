@@ -1,7 +1,44 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Instagram } from 'lucide-react';
 
 const Footer = () => {
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Handle form submission
+  const handleSubscribe = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+    setIsSuccess(false);
+    setIsError(false);
+
+    try {
+      const response = await fetch('https://hook.eu2.make.com/54n672i5bf9pggjgla67sjminq61cmbt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'subscribe',
+          email: email,
+        }),
+      });
+
+      if (response.ok) {
+        setIsSuccess(true);
+        setEmail(''); // Clear the email input after success
+      } else {
+        setIsError(true);
+      }
+    } catch (error) {
+      setIsError(true);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <footer className="bg-black text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -38,16 +75,25 @@ const Footer = () => {
           <div>
             <h3 className="text-white text-lg font-semibold mb-4">Newsletter</h3>
             <p className="text-sm mb-4">Stay Updated on the Latest in AI Innovation</p>
-            <div className="flex">
+            <form onSubmit={handleSubscribe} className="flex">
               <input
                 type="email"
                 placeholder="Enter your email"
                 className="px-4 py-2 rounded-l-lg bg-gray-800 border-gray-700 focus:outline-none focus:ring-1 focus:ring-green-500"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
-              <button className="px-4 py-2 bg-green-500 text-white rounded-r-lg hover:bg-green-600 transition-colors">
-                Subscribe
+              <button
+                type="submit"
+                className="px-4 py-2 bg-green-500 text-white rounded-r-lg hover:bg-green-600 transition-colors"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Subscribing...' : 'Subscribe'}
               </button>
-            </div>
+            </form>
+            {isSuccess && <p className="text-green-400 mt-2">Successfully subscribed!</p>}
+            {isError && <p className="text-red-400 mt-2">There was an error, please try again.</p>}
           </div>
         </div>
         
